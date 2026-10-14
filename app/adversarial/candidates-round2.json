@@ -1,0 +1,56 @@
+{
+  "candidates": [
+    {
+      "name": "claude-sonnet-5",
+      "kind": "anthropic",
+      "base_url": "https://api.anthropic.com",
+      "key_env": "ANTHROPIC_API_KEY",
+      "model": "claude-sonnet-5",
+      "extra": {}
+    },
+    {
+      "name": "claude-haiku-4.5",
+      "kind": "anthropic",
+      "base_url": "https://api.anthropic.com",
+      "key_env": "ANTHROPIC_API_KEY",
+      "model": "claude-haiku-4-5",
+      "extra": {}
+    },
+    {
+      "name": "cer-qwen3.8-27b",
+      "kind": "openai",
+      "base_url": "https://api.cerebras.ai/v1",
+      "key_env": "CEREBRAS_API_KEY",
+      "model": "qwen-3.8-27b",
+      "extra": {
+        "reasoning_effort": "none"
+      }
+    },
+    {
+      "name": "groq-qwen3.8-27b",
+      "kind": "openai",
+      "base_url": "https://api.groq.com/openai/v1",
+      "key_env": "GROQ_API_KEY",
+      "model": "qwen/qwen3.8-27b",
+      "extra": {}
+    },
+    {
+      "name": "local-gemma4-26b",
+      "kind": "ollama",
+      "base_url": "http://127.0.0.1:11434",
+      "model": "gemma4:26b-mlx"
+    },
+    {
+      "name": "local-qwen3.8-27b",
+      "kind": "ollama",
+      "base_url": "http://127.0.0.1:11434",
+      "model": "qwen3.8:27b-mlx"
+    },
+    {
+      "name": "local-qwen3.6-35b",
+      "kind": "ollama",
+      "base_url": "http://127.0.0.1:11434",
+      "model": "qwen3.6:35b-mlx"
+    }
+  ]
+}

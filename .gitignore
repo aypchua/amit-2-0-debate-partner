@@ -1,0 +1,10 @@
+.env
+*.env
+.venv/
+__pycache__/
+node_modules/
+.tools/
+app/bench_out/
+app/adversarial/out/
+.claude/
+.DS_Store

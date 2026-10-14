@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AMIT 2.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --bg:#0b0d10; --panel:#14181d; --ink:#e8ecf1; --dim:#8b95a3; --acc:#ffb020; --ok:#3ddc84; --bad:#ff5c5c; --blue:#5aa9ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.4 -apple-system, "SF Pro Text", Inter, system-ui, sans-serif; height:100vh; display:flex; flex-direction:column; }
+  header { display:flex; align-items:center; gap:14px; padding:10px 16px; border-bottom:1px solid #222a33; }
+  header h1 { font-size:20px; margin:0; letter-spacing:.5px; }
+  header h1 span { color:var(--acc); }
+  .badge { padding:4px 10px; border-radius:999px; background:#1c232b; color:var(--dim); font-size:13px; font-variant-numeric:tabular-nums; }
+  .badge.ok { color:var(--ok); } .badge.bad { color:var(--bad); } .badge.live { color:var(--bad); animation:pulse 1.2s infinite; }
+  @keyframes pulse { 50% { opacity:.45; } }
+  #lat { font-size:26px; font-weight:700; color:var(--acc); margin-left:auto; font-variant-numeric:tabular-nums; }
+  #lat small { font-size:13px; color:var(--dim); font-weight:400; margin-left:6px; }
+  main { flex:1; display:grid; grid-template-columns: 1fr 1.6fr; grid-template-rows: 1fr 1fr; gap:10px; padding:10px 16px; min-height:0; }
+  .panel { background:var(--panel); border:1px solid #222a33; border-radius:12px; padding:12px 14px; display:flex; flex-direction:column; min-height:0; }
+  .panel h2 { margin:0 0 8px; font-size:12px; text-transform:uppercase; letter-spacing:1.5px; color:var(--dim); display:flex; gap:10px; align-items:center; }
+  .panel h2 .who { color:var(--blue); text-transform:none; letter-spacing:0; font-weight:600; }
+  #transcript { grid-row: 1 / span 2; }
+  #transcript textarea { flex:1; width:100%; resize:none; background:transparent; color:var(--ink); border:0; outline:0; font:17px/1.5 inherit; }
+  .out { flex:1; overflow:auto; font-size:clamp(20px, 2.6vw, 34px); line-height:1.4; font-weight:500; }
+  .out p { margin:0 0 .6em; }
+  .out p.zing { color:var(--acc); font-weight:600; }
+  #final .out { font-size:clamp(22px, 2.8vw, 38px); }
+  #theirnums { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 8px; }
+  #theirnums:empty { display:none; }
+  #theirnums .nb { font-size:13px; padding:3px 9px; border-radius:999px; background:#1c232b; color:var(--dim); border:1px solid #2b3540; }
+  #theirnums .nb.ok { color:var(--ok); border-color:#245c3b; }
+  #theirnums .nb.unk { color:var(--acc); border-color:#5c4a1a; }
+  #theirnums .lbl { font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--dim); align-self:center; margin-right:4px; }
+  #final .out { cursor:pointer; }
+  #final .out .pg { display:none; } #final .out .pg.cur { display:block; }
+  #final .out p { margin:0 0 .7em; }
+  #final .out .pg.last p:last-child { color:var(--acc); }
+  .out .b { display:flex; gap:.6em; align-items:flex-start; margin:.35em 0; }
+  .out .b .n { color:var(--dim); font-weight:700; min-width:1.2em; text-align:right; font-variant-numeric:tabular-nums; }
+  .out .b.zing .n, .out .b.zing { color:var(--acc); }
+  .out .t { display:flex; flex-direction:column; }
+  .out .q { font-size:.45em; font-weight:500; color:var(--dim); line-height:1.3; }
+  .out .q::before { content:'“'; } .out .q::after { content:'”'; }
+  .out .b.zing .q { color:#b48a2c; }
+  .out .s { font-size:.55em; font-weight:500; color:#c3cbd6; line-height:1.3; margin-top:.15em; }
+  .out .b.zing .s { color:#d9b566; }
+  /* READ MODE: rebuttal takes the stage */
+  body.read main { grid-template-columns: 0.55fr 3fr; grid-template-rows: 1fr; }
+  body.read #notes { display:none; }
+  body.read #transcript { opacity:.55; }
+  body.read #transcript textarea { font-size:13px; }
+  body.read #final .out { overflow:hidden; }
+  #final h2 .hint { margin-left:auto; color:var(--dim); text-transform:none; letter-spacing:0; font-weight:400; }
+  .out .zing { color:var(--acc); }
+  footer { display:flex; gap:10px; padding:10px 16px 14px; border-top:1px solid #222a33; flex-wrap:wrap; align-items:center; }
+  button { background:#1c232b; color:var(--ink); border:1px solid #2b3540; border-radius:10px; padding:12px 18px; font:600 16px inherit; cursor:pointer; }
+  button:hover { background:#242d37; }
+  button.primary { background:var(--acc); color:#111; border-color:var(--acc); font-size:18px; padding:14px 26px; }
+  button.danger { border-color:var(--bad); color:var(--bad); }
+  input[type=text] { flex:1; min-width:220px; background:#0f1317; color:var(--ink); border:1px solid #2b3540; border-radius:10px; padding:12px 14px; font:16px inherit; }
+  select { background:#1c232b; color:var(--ink); border:1px solid #2b3540; border-radius:10px; padding:10px; font:15px inherit; }
+  #log { position:fixed; right:12px; top:64px; max-width:46vw; font-size:11px; color:var(--dim); text-align:right; pointer-events:none; opacity:.7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; z-index:5; }
+  body.read #log { display:none; }
+  kbd { background:#222a33; border-radius:4px; padding:1px 5px; font-size:12px; color:var(--dim); }
+  /* SHOW MODE: run-of-show rail + teleprompter */
+  #rail { display:none; }
+  body.show #rail { display:flex; flex-direction:column; gap:6px; padding:10px 0 10px 16px; width:210px; flex:none; overflow:auto; }
+  body.show main { padding-left:10px; }
+  body.show { flex-direction:column; }
+  body.show #stage { display:flex; flex:1; min-height:0; }
+  #stage { display:contents; }
+  .slot { background:var(--panel); border:1px solid #222a33; border-radius:10px; padding:10px 12px; cursor:pointer; }
+  .slot .k { font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--dim); }
+  .slot .t { font-weight:600; margin-top:2px; }
+  .slot .w { font-size:12px; color:var(--dim); }
+  .slot.cur { border-color:var(--acc); background:#1d1a12; }
+  .slot.opp .t::before { content:'🎙 '; }
+  #timer { margin-top:auto; font-size:40px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--ok); text-align:center; }
+  #timer.warn { color:var(--acc); } #timer.over { color:var(--bad); animation:pulse 1s infinite; }
+  #timer small { display:block; font-size:12px; color:var(--dim); font-weight:400; }
+  #script { display:none; }
+  body.show.slot-script main { display:none; }
+  body.show.slot-script #script { display:flex; flex:1; margin:10px 16px 10px 0; }
+  #script .tp { flex:1; overflow:auto; padding:6px 18px 40vh 18px; font-size:clamp(20px, 2.1vw, 30px); line-height:1.45; }
+  #script .tp h2 { font-size:.5em; letter-spacing:1.5px; text-transform:uppercase; color:var(--blue); margin:1.4em 0 .4em; border-top:1px solid #222a33; padding-top:.8em; }
+  #script .tp h2 .tm { color:var(--acc); margin-right:.8em; font-variant-numeric:tabular-nums; }
+  #script .tp p { margin:0 0 .7em; }
+  #script .tp .dir { color:var(--dim); font-style:italic; font-size:.8em; }
+  #script .tp strong { color:#fff; }
+  #script .tp .amit { border-left:5px solid var(--acc); padding:.5em 1em; margin:.6em 0 1em; background:#171410; border-radius:8px; }
+  #script .tp .amit .lbl { font-size:.5em; letter-spacing:1.5px; text-transform:uppercase; color:var(--acc); margin-bottom:.3em; }
+  #script .tp .amit p.zing { color:var(--acc); font-weight:600; }
+  #script .tp .amit .empty { color:var(--dim); font-style:italic; font-size:.75em; }
+  #script .tp h1, #script .tp .meta { display:none; }
+  body.show #transcript.hide { display:none; }
+  #micbadge { display:none; } body.show.slot-script #micbadge { display:inline; }
+  #panic-box { position:fixed; inset:8% 10%; background:#1a1410; border:2px solid var(--acc); border-radius:16px; padding:24px 32px; font-size:clamp(20px,2.4vw,30px); font-weight:600; overflow:auto; display:none; }
+  #panic-box.show { display:block; }
+  #panic-box div { margin:10px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AMIT <span>2.0</span></h1>
+  <span id="b-stt" class="badge">mic idle</span>
+  <span id="micbadge" class="badge"></span>
+  <span id="b-warm" class="badge">local: cold</span>
+  <span id="b-racers" class="badge">racers: -</span>
+  <span id="b-win" class="badge">winner: -</span>
+  <div id="lat">-- <small>ms to first word</small></div>
+</header>
+<div id="stage">
+<nav id="rail"></nav>
+<section class="panel" id="script"><div class="tp" id="tp"></div></section>
+<main>
+  <section class="panel" id="transcript">
+    <h2>Opposition transcript <span id="b-n" class="badge">0 phrases</span></h2>
+    <textarea id="ta" placeholder="Live transcript appears here as they speak. You can also paste or edit."></textarea>
+  </section>
+  <section class="panel" id="notes">
+    <h2>Running notes <span class="who">(while they talk)</span> <span id="notes-meta" class="badge">-</span></h2>
+    <div id="theirnums"></div>
+    <div class="out" id="notes-out"></div>
+  </section>
+  <section class="panel" id="final">
+    <h2>Your speech <span class="who">(read this)</span> <span id="final-meta" class="badge">-</span> <span id="pager" class="badge"></span> <span class="hint"><kbd>←</kbd><kbd>→</kbd> or click: turn page · <kbd>Tab</kbd> full screen</span></h2>
+    <div class="out" id="final-out"></div>
+  </section>
+</main>
+</div>
+<footer>
+  <select id="src"><option value="mic">Mic</option><option value="system">System audio</option></select>
+  <button id="btn-listen">Listen</button>
+  <button id="btn-stop" class="primary" title="Stops the mic and writes your whole 5-minute second speech from what they just said">STOP &amp; WRITE SPEECH 2 <kbd>Space</kbd></button>
+  <button id="btn-rebut" title="Short 70-second rebuttal only">Rebut only</button>
+  <button id="btn-steel">Steelman &amp; flip</button>
+  <button id="btn-summary" title="Stops the mic and writes your whole 3-minute summary from both their speeches and what Amit already said">STOP &amp; WRITE SUMMARY</button>
+  <button id="btn-script" title="Show your scripted first speech in the big pane">Script 1</button>
+  <input type="text" id="q" placeholder="Ask AMIT 2.0 anything... (Enter)">
+  <button id="btn-ask">Ask</button>
+  <button id="btn-clear" title="Archives the current speech into memory (use between opposition speakers)">Clear</button>
+  <button id="btn-discard" title="Empties the transcript WITHOUT saving it (mic check, MC chatter, accidental capture)">Discard</button>
+  <button id="btn-reset" class="danger" title="New debate: wipes memory, transcript and panes">Reset</button>
+  <button id="btn-panic" class="danger">Panic</button>
+  <label style="color:var(--dim);font-size:13px"><input type="checkbox" id="auto" checked> auto notes</label>
+</footer>
+<div id="log"></div>
+<div id="panic-box"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const ta = $('ta'), notesOut = $('notes-out'), finalOut = $('final-out');
+let editing = false, curSeq = 0, curMode = null, buf = '', tsWatch = 0, tsStart = 0;
+
+// Long passages are shown as pages of ~120 words in big type; arrows or a click turn the page.
+let PAGE = { n: 0, cur: 0 };
+function renderSpeech(text, done) {
+  const paras = text.replace(/\*\*|__|^#+\s*/gm, '').split(/\n\s*\n/).map(p => p.replace(/\n/g, ' ').trim()).filter(Boolean);
+  const pages = []; let buf2 = [], words = 0;
+  for (const p of paras) { const w = p.split(/\s+/).length; if (buf2.length && words + w > 120) { pages.push(buf2); buf2 = []; words = 0; } buf2.push(p); words += w; }
+  if (buf2.length) pages.push(buf2);
+  const keep = Math.min(PAGE.cur, Math.max(0, pages.length - 1));
+  finalOut.innerHTML = pages.map((pg, i) => `<div class="pg ${i === keep ? 'cur' : ''} ${i === pages.length - 1 && done ? 'last' : ''}">${pg.map(p => `<p>${escape(p)}</p>`).join('')}</div>`).join('');
+  PAGE.n = pages.length; PAGE.cur = keep;
+  $('pager').textContent = pages.length > 1 ? `page ${keep + 1} / ${pages.length}${done ? '' : ' · writing…'}` : (done ? '' : 'writing…');
+  autofit(finalOut, 26);
+}
+function turnPage(d) { if (!PAGE.n) return; PAGE.cur = Math.max(0, Math.min(PAGE.n - 1, PAGE.cur + d)); document.querySelectorAll('#final .pg').forEach((el, i) => el.classList.toggle('cur', i === PAGE.cur)); $('pager').textContent = `page ${PAGE.cur + 1} / ${PAGE.n}`; autofit(finalOut, 26); }
+function render(el, text, done) {
+  if (el === finalOut) return renderSpeech(text, done);
+  // Speech mode: paragraphs separated by blank lines; the last paragraph (when done) is the zinger.
+  const paras = text.replace(/^\s*(Andrew|AMIT 2\.0|Amit)\s*:\s*/i, '').replace(/\*\*|__|\*(?=\S)|(?<=\S)\*/g, '').split(/\n\s*\n/).map(p => p.replace(/\n/g, ' ').replace(/^[-•]\s*/, '').trim()).filter(Boolean);
+  el.innerHTML = paras.map((p, i) => {
+    const last = done && i === paras.length - 1 && paras.length > 1;
+    return `<p class="${last ? 'zing' : ''}">${escape(p)}</p>`;
+  }).join('');
+  if (el === finalOut) autofit(el); else el.scrollTop = el.scrollHeight;
+}
+// Shrink the rebuttal font until every bullet fits without scrolling (min 20px), grow back when there is room.
+function autofit(el, floor = 13) {
+  let size = 40;
+  el.style.fontSize = size + 'px';
+  while (el.scrollHeight > el.clientHeight + 2 && size > floor) { size -= 2; el.style.fontSize = size + 'px'; }
+}
+finalOut.addEventListener('click', () => turnPage(1));
+function setRead(on) { document.body.classList.toggle('read', on); autofit(finalOut); }
+function escape(s) { return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+function setBadge(id, text, cls) { const b = $(id); b.textContent = text; b.className = 'badge ' + (cls || ''); }
+function log(m) { const l = $('log'); l.innerHTML = (l.innerHTML + '<br>' + escape(m.length > 140 ? m.slice(0, 140) + '…' : m)).split('<br>').slice(-2).join('<br>'); }
+function post(url, body) { return fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body || {})}); }
+
+function startTimer() { tsStart = performance.now(); $('lat').firstChild.textContent = '… '; clearInterval(tsWatch);
+  tsWatch = setInterval(() => { $('lat').firstChild.textContent = Math.round(performance.now() - tsStart) + ' '; }, 50); }
+function stopTimer(ms) { clearInterval(tsWatch); $('lat').firstChild.textContent = (ms ?? Math.round(performance.now() - tsStart)) + ' '; }
+
+const es = new EventSource('/events');
+es.onmessage = e => {
+  const ev = JSON.parse(e.data);
+  switch (ev.type) {
+    case 'hello':
+      ta.value = ev.transcript.join('\n'); setBadge('b-n', ev.transcript.length + ' phrases');
+      if (ev.warm && ev.warm.ok) setBadge('b-warm', 'local: warm (' + ev.warm.model + ')', 'ok');
+      setBadge('b-stt', ev.stt_running ? 'LISTENING' : 'mic idle', ev.stt_running ? 'live' : '');
+      break;
+    case 'phrase':
+      if (!editing) { ta.value += (ta.value ? '\n' : '') + ev.text; ta.scrollTop = ta.scrollHeight; }
+      setBadge('b-n', ev.n + ' phrases'); break;
+    case 'numbers': {
+      const el = $('theirnums');
+      el.innerHTML = ev.items.length ? '<span class="lbl">their numbers</span>' + ev.items.map(it =>
+        `<span class="nb ${it.verified ? 'ok' : 'unk'}" title="${escape(it.ctx)}">${escape(it.n)}% ${it.verified ? '✓ ' + escape(it.source || 'in facts') : '? ask: which report, which year?'}</span>`).join('') : '';
+      break; }
+    case 'transcript_replaced':
+      ta.value = ev.transcript.join('\n'); setBadge('b-n', ev.transcript.length + ' phrases'); break;
+    case 'status':
+      log(ev.msg);
+      if (ev.msg.startsWith('stt started')) setBadge('b-stt', 'LISTENING', 'live');
+      if (ev.msg.startsWith('stt stopped')) setBadge('b-stt', 'mic idle');
+      break;
+    case 'warm': setBadge('b-warm', ev.ok ? 'local: warm (' + ev.model + ')' : 'local: ' + (ev.error || 'cold'), ev.ok ? 'ok' : 'bad'); break;
+    case 'gen_start':
+      if (ev.attempt) { buf = ''; break; }
+      curSeq = ev.seq; curMode = ev.mode; buf = '';
+      if (ev.mode !== 'notes') { startTimer(); finalOut.innerHTML = ''; PAGE = {n:0, cur:0}; $('pager').textContent=''; setBadge('b-win', 'racing…'); $('final-meta').textContent = ({speech2:'speech 2', summary:'summary', rebut:'rebuttal', steelman:'steelman', ask:'answer'})[ev.mode] || ev.mode; setRead(true); }
+      else { $('notes-meta').textContent = 'drafting…'; }
+      setBadge('b-racers', 'racers: ' + (ev.racers || []).join(', ')); break;
+    case 'gen_racers': break;
+    case 'gen_winner':
+      if (ev.seq !== curSeq) break;
+      if (ev.mode !== 'notes') { stopTimer(ev.ttft_ms); setBadge('b-win', 'winner: ' + ev.provider, 'ok'); }
+      else { $('notes-meta').textContent = ev.provider; }
+      break;
+    case 'gen_delta':
+      if (ev.seq !== curSeq) break;
+      buf += ev.text; render(ev.mode === 'notes' ? notesOut : finalOut, buf); break;
+    case 'gen_done':
+      if (ev.seq !== curSeq) break;
+      if (ev.mode !== 'notes') { $('final-meta').textContent = `${ev.provider || 'no winner'} · ${ev.total_ms} ms total`; if (!ev.provider) setBadge('b-win', 'all racers failed', 'bad'); render(finalOut, buf, true); }
+      else { $('notes-meta').textContent = `${ev.provider || '-'} · ${ev.total_ms} ms`; }
+      break;
+    case 'gen_replace':
+      if (ev.seq !== curSeq) break;
+      buf = ev.text; render(finalOut, buf, true); $('final-meta').textContent += ` · guard: ${ev.note}`; break;
+    case 'gen_error': log(`${ev.provider}: ${ev.error}`); break;
+    case 'gen_replace':
+      if (ev.seq !== curSeq) break;
+      buf = ev.text; render(finalOut, buf, true); fillAmit(buf); break;
+    case 'gen_rewrite':
+      if (ev.seq !== curSeq) break;
+      buf = ''; finalOut.innerHTML = '<p style="color:var(--dim)">rewriting: ' + escape((ev.problems||[]).join('; ')) + '</p>';
+      setBadge('b-win', 'rewriting…'); fillAmit(''); break;
+  }
+};
+es.onerror = () => setBadge('b-racers', 'disconnected', 'bad');
+
+// --- actions ---
+async function pushTranscriptIfEdited() { if (editing) { await post('/transcript', {text: ta.value}); editing = false; } }
+ta.addEventListener('input', () => { editing = true; });
+ta.addEventListener('blur', pushTranscriptIfEdited);
+
+$('btn-listen').onclick = async () => { await pushTranscriptIfEdited(); setRead(false); await post('/stt/start', {source: $('src').value}); };
+window.addEventListener('resize', () => autofit(finalOut));
+function stopMode() { const inShow = document.body.classList.contains('show'); return (inShow && (SHOW.cur === 3 || SHOW.cur === 5)) ? 'summary' : 'rebut'; }
+$('btn-stop').onclick = async () => { await pushTranscriptIfEdited(); await post('/generate', {mode: document.body.classList.contains('show') ? stopMode() : 'speech2', stop_stt:true}); };
+$('btn-rebut').onclick = async () => { await pushTranscriptIfEdited(); await post('/generate', {mode:'rebut', stop_stt:true}); };
+$('btn-script').onclick = async () => {
+  const r = await (await fetch('/show')).json(); const md = (r.slots.find(x => x.file && x.file.startsWith('02')) || {}).md || '(script not found)';
+  // paragraphs = blank-line separated blocks; drop headings, stage directions, notes (~), markers; join wrapped lines
+  const spoken = md.split(/\n\s*\n/).map(b => b.trim()).filter(b => b && !/^(#|~|---|\[\[)/.test(b) && !/^\*\*\[[\s\S]*\]\*\*$/.test(b))
+    .flatMap(b => /^- /m.test(b) ? b.split('\n').map(l => l.replace(/^- /, '\u2013 ')) : [b.replace(/\n/g, ' ')])
+    .map(b => b.replace(/\*\*/g, '').replace(/\s+/g, ' ').trim()).filter(Boolean).join('\n\n');
+  curSeq = -1; buf = spoken; PAGE = {n:0, cur:0}; $('final-meta').textContent = 'script: first speech'; setRead(true); renderSpeech(spoken, true);
+};
+$('btn-summary').onclick = async () => { await pushTranscriptIfEdited(); await post('/generate', {mode:'summary', stop_stt:true}); };
+$('btn-steel').onclick = async () => { await pushTranscriptIfEdited(); await post('/generate', {mode:'steelman', stop_stt:true}); };
+$('btn-ask').onclick = ask;
+$('q').addEventListener('keydown', e => { if (e.key === 'Enter') ask(); });
+async function ask() { const q = $('q').value.trim(); if (!q) return; await pushTranscriptIfEdited(); await post('/generate', {mode:'ask', question:q}); $('q').value=''; }
+$('btn-clear').onclick = async () => { $('theirnums').innerHTML = ''; await post('/transcript/clear'); notesOut.innerHTML=''; finalOut.innerHTML=''; setRead(false);
+  if (document.body.classList.contains('show') && confirm('Also wipe debate memory (earlier speeches and rebuttals)?')) { await post('/history/clear'); SHOW.lastSaid=''; } };
+$('auto').onchange = e => post('/auto_notes', {on: e.target.checked});
+$('btn-discard').onclick = async () => { await post('/transcript/discard'); $('theirnums').innerHTML = ''; notesOut.innerHTML = ''; ta.value = ''; setBadge('b-n', '0 phrases'); log('transcript discarded (not archived)'); };
+$('btn-reset').onclick = async () => {
+  if (!confirm('New debate? This wipes debate memory (all archived speeches and Amit passages), the transcript and the panes.')) return;
+  await post('/history/clear'); $('theirnums').innerHTML = ''; notesOut.innerHTML = ''; finalOut.innerHTML = '';
+  ta.value = ''; setBadge('b-n', '0 phrases'); setRead(false); SHOW.lastSaid = ''; SHOW.cur = -1; renderRail && renderRail(); log('memory wiped: new debate');
+};
+$('btn-panic').onclick = async () => {
+  const box = $('panic-box');
+  if (box.classList.contains('show')) { box.classList.remove('show'); return; }
+  const r = await (await fetch('/panic')).json();
+  box.innerHTML = '<div style="color:var(--acc);font-size:14px;letter-spacing:1.5px">PANIC LINES · click to close</div>' + r.lines.map(l => `<div>${escape(l)}</div>`).join('');
+  box.classList.add('show');
+};
+$('panic-box').onclick = () => $('panic-box').classList.remove('show');
+// ===== SHOW MODE (run of show + teleprompter) =====
+let SHOW = { slots: [], cur: -1, t0: 0, tick: 0, lastSaid: '' };
+function mdToHtml(md) {
+  // Tiny markdown for our scripts: ## headings with [m:ss-m:ss] marks, **bold**, **[stage directions]**, paragraphs, [[AMIT]] block.
+  const out = [];
+  for (const block of md.split(/\n\s*\n/)) {
+    let b = block.trim(); if (!b) continue;
+    if (b.startsWith('# ')) continue;                       // file title
+    if (b.startsWith('---')) continue;
+    if (/^\[\[AMIT\]\]$/.test(b)) { out.push('<div class="amit" id="amitblock"><div class="lbl">Amit 2.0 · written seconds ago</div><div class="body"></div></div>'); continue; }
+    if (b.startsWith('## ')) {
+      const m = b.slice(3).match(/^\[([^\]]+)\]\s*(.*)$/);
+      out.push(m ? `<h2><span class="tm">${escape(m[1])}</span>${escape(m[2])}</h2>` : `<h2>${escape(b.slice(3))}</h2>`);
+      continue;
+    }
+    if (/^\*\*\[.*\]\*\*$/s.test(b)) { out.push(`<p class="dir">${escape(b.replace(/^\*\*|\*\*$/g, ''))}</p>`); continue; }
+    if (/^[-*] /.test(b)) { out.push('<ul>' + b.split('\n').map(l => `<li>${inline(l.replace(/^[-*] /, ''))}</li>`).join('') + '</ul>'); continue; }
+    out.push(`<p>${inline(b.replace(/\n/g, ' '))}</p>`);
+  }
+  return out.join('');
+}
+function inline(t) { return escape(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\[([^\]]+)\]/g, '<span class="dir">[$1]</span>'); }
+function fillAmit(text) {
+  const el = document.querySelector('#amitblock .body'); if (!el) return;
+  if (!text || !text.trim()) { el.innerHTML = '<div class="empty">Rebuttal appears here after you press Space at the end of their speech.</div>'; return; }
+  const paras = text.replace(/^\s*(Andrew|AMIT 2\.0|Amit)\s*:\s*/i, '').replace(/\*\*|__/g, '').split(/\n\s*\n/).map(p => p.replace(/\n/g, ' ').trim()).filter(Boolean);
+  el.innerHTML = paras.map((p, i) => `<p class="${i === paras.length - 1 && paras.length > 1 ? 'zing' : ''}">${escape(p)}</p>`).join('');
+}
+function fmt(sec) { const m = Math.floor(sec / 60), s = Math.floor(sec % 60); return `${m}:${String(s).padStart(2, '0')}`; }
+function renderRail() {
+  $('rail').innerHTML = SHOW.slots.map((sl, i) => `<div class="slot ${sl.kind} ${i === SHOW.cur ? 'cur' : ''}" data-i="${i}"><div class="k">Slot ${sl.id} · ${fmt(sl.limit)}</div><div class="t">${escape(sl.title)}</div><div class="w">${escape(sl.who)}</div></div>`).join('')
+    + `<div id="timer">0:00<small>elapsed</small></div><div id="mem" class="slot" style="cursor:default"><div class="k">Debate memory</div><div class="w" id="memlist">empty</div></div>`;
+  fetch('/history').then(r => r.json()).then(h => { $('memlist').innerHTML = h.history.length ? h.history.map(x => escape(x.label)).join('<br>') : 'empty'; }).catch(() => {});
+  document.querySelectorAll('#rail .slot').forEach(el => el.onclick = () => gotoSlot(+el.dataset.i));
+}
+async function loadShow() { const r = await (await fetch('/show')).json(); SHOW.slots = r.slots; SHOW.lastSaid = r.last_said || SHOW.lastSaid; renderRail(); }
+async function gotoSlot(i) {
+  if (i < 0 || i >= SHOW.slots.length) return;
+  await loadShow();                         // re-read scripts so edits show up
+  SHOW.cur = i; const sl = SHOW.slots[i];
+  renderRail();
+  document.body.classList.toggle('slot-script', sl.kind === 'script');
+  SHOW.t0 = performance.now(); clearInterval(SHOW.tick);
+  SHOW.tick = setInterval(() => {
+    const el = $('timer'); if (!el) return;
+    const e = (performance.now() - SHOW.t0) / 1000; el.firstChild.textContent = fmt(e);
+    el.className = e > sl.limit ? 'over' : (e > sl.limit - 60 ? 'warn' : '');
+  }, 250);
+  setRead(false);
+  await post('/slot', {index: i, source: $('src').value});   // server archives the previous opposition transcript, starts/stops the mic
+  if (sl.kind === 'script') {
+    $('tp').innerHTML = mdToHtml(sl.md); fillAmit(SHOW.lastSaid); $('tp').scrollTop = 0;
+  } else {
+    notesOut.innerHTML = ''; finalOut.innerHTML = '';
+  }
+}
+function setShow(on) { document.body.classList.toggle('show', on); if (on) { loadShow().then(() => { if (SHOW.cur < 0) gotoSlot(0); }); } else { clearInterval(SHOW.tick); document.body.classList.remove('slot-script'); } }
+// keep the AI block and mic badge in sync with live events
+const _origOnMsg = es.onmessage;
+es.onmessage = e => {
+  _origOnMsg(e);
+  const ev = JSON.parse(e.data);
+  if (ev.type === 'gen_done' && ev.mode !== 'notes' && ev.seq === curSeq) { SHOW.lastSaid = buf; fillAmit(buf); }
+  if (ev.type === 'gen_delta' && ev.mode !== 'notes' && ev.seq === curSeq && document.body.classList.contains('slot-script')) fillAmit(buf);
+  if (ev.type === 'phrase' || ev.type === 'status' || ev.type === 'hello') {
+    const n = $('b-n').textContent; const live = $('b-stt').textContent === 'LISTENING';
+    $('micbadge').textContent = (live ? 'mic live · ' : 'mic idle · ') + n; $('micbadge').className = 'badge ' + (live ? 'live' : '');
+  }
+};
+
+document.addEventListener('keydown', e => {
+  if (e.target === ta || e.target === $('q')) return;
+  if (e.code === 'Space') { e.preventDefault(); if (!document.body.classList.contains('slot-script')) $('btn-stop').click(); }
+  if (e.key === 'Tab') { e.preventDefault(); setRead(!document.body.classList.contains('read')); }
+  if (e.key === 's' || e.key === 'S') setShow(!document.body.classList.contains('show'));
+  if (document.body.classList.contains('show') && e.key === 'ArrowRight') gotoSlot(SHOW.cur + 1);
+  else if (document.body.classList.contains('show') && e.key === 'ArrowLeft') gotoSlot(SHOW.cur - 1);
+  else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); turnPage(1); }
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); turnPage(-1); }
+  if (e.key === 'l') $('btn-listen').click();
+  if (e.key === 'p') $('btn-panic').click();
+});
+</script>
+</body>
+</html>

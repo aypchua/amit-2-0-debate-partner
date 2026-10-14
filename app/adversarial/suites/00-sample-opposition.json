@@ -1,0 +1,21 @@
+{
+ "name": "00-sample-opposition",
+ "source": "Invented sample. Real opposition material is not published.",
+ "speeches": [
+  {
+   "slot": 1,
+   "label": "1st Opposition",
+   "text": "Good evening. The proposition must prove replacement, not assistance. Presales is judgement under uncertainty, not a list of deliverables. AI can generate an answer; it cannot own a wrong one. Teams may become leaner, but change is not replacement."
+  },
+  {
+   "slot": 3,
+   "label": "2nd Opposition",
+   "text": "Their case fails three tests: substitution, scale and accountability. Calculators are more accurate than people, yet humans still own the decision. Self-service changes where presales enters the journey; it does not remove the need."
+  },
+  {
+   "slot": 5,
+   "label": "Opposition Summary",
+   "text": "They proved can, may and some. The motion requires will, replace and us. AI will transform us. It will not replace us."
+  }
+ ]
+}

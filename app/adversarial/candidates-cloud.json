@@ -1,0 +1,10 @@
+{
+  "candidates": [
+    {"name": "cer-gptoss120b", "kind": "openai", "base_url": "https://api.cerebras.ai/v1", "key_env": "CEREBRAS_API_KEY", "model": "gpt-oss-120b", "extra": {"reasoning_effort": "low"}},
+    {"name": "cer-gemma4-31b", "kind": "openai", "base_url": "https://api.cerebras.ai/v1", "key_env": "CEREBRAS_API_KEY", "model": "gemma-4-31b", "extra": {}},
+    {"name": "cer-qwen3.8-27b", "kind": "openai", "base_url": "https://api.cerebras.ai/v1", "key_env": "CEREBRAS_API_KEY", "model": "qwen-3.8-27b", "extra": {}},
+    {"name": "groq-qwen3.6-27b", "kind": "openai", "base_url": "https://api.groq.com/openai/v1", "key_env": "GROQ_API_KEY", "model": "qwen/qwen3.6-27b", "extra": {}},
+    {"name": "groq-qwen3.8-27b", "kind": "openai", "base_url": "https://api.groq.com/openai/v1", "key_env": "GROQ_API_KEY", "model": "qwen/qwen3.8-27b", "extra": {}},
+    {"name": "local-qwen3.6-35b", "kind": "ollama", "base_url": "http://127.0.0.1:11434", "model": "qwen3.6:35b-mlx"}
+  ]
+}

@@ -1,0 +1,19 @@
+Thank you, Andrew. That was a very entertaining laptop.
+
+Let me start with what the motion actually says. "AI will replace us in the next five years." Not assist. Not augment. Replace. And the proposition has already moved the goalposts, because their definition is that a buyer can reach a decision without a human in the room. Well, buyers have been able to reach decisions without us for decades. They read a brochure. That is not replacement, that is Tuesday.
+
+Here is what actually happens in a real enterprise deal. Last quarter I sat with a CISO for three hours going through data residency requirements. Three hours. Line by line. She did not want a chatbot. She wanted someone who would look her in the eye and say, yes, I understand what happens to your data when a region fails over, and here is who is accountable when it does. No model is accountable. You cannot fire a large language model. You cannot put it on a performance plan. You cannot call it at eleven pm when the integration breaks. And believe me, they call.
+
+Second point. AI hallucinates. We all know this. In a regulated industry, one hallucination in a security questionnaire and you are out of the deal. Not delayed. Out. Andrew's laptop over there will confidently invent a SOC 2 control that does not exist, and the buyer's legal team will find it. That is not a five-year problem, that is a fundamental property of how these systems work.
+
+Third. Trust. Trust is built over years. Over dinners. Over the deal that went wrong and how you handled it. Presales is not about answering questions, and this is where the proposition misunderstands our own job. It is about reading the room. Knowing when the CFO is nodding but the head of IT is not. Knowing when to shut up. Knowing when the question they asked is not the question they meant. Can an AI transcribe that meeting? Sure. Can it notice that the champion just lost political capital because his boss walked in late? No.
+
+Fourth. Complex deals need humans in the loop. Multi-country rollouts, custom integrations, procurement rules that contradict each other, three vendors and a systems integrator all pointing fingers. Somebody has to own the outcome. The AI is a tool in that process. A very good tool. But a tool.
+
+And frankly, Andrew, you are a presales engineer standing up here arguing yourself out of a job. If you really believed it, you would have resigned this morning and let the laptop present. Instead, you are still the one holding the microphone. You are still the one the audience is looking at. Your own demo needs you to read it out loud. That is the human in the loop, and you built it in.
+
+Five years is nothing. Five years ago we were told self-driving cars would replace every driver. There are more Grab drivers today than there were then. The tools will get better. Absolutely. They will make us more productive. They will take the security questionnaire off our desks, and thank goodness. But more productive is not redundant. Every productivity wave in history has changed what the job looks like and increased the demand for the people who do it well.
+
+The proposition wants you to believe that because a machine can generate a rebuttal, it can run a deal. Those are different things. One is text. The other is responsibility.
+
+We are not against AI. We use it every day. We are against the idea that a fun demo on a laptop is the same thing as a career ending. It isn't. Thank you.

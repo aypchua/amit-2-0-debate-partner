@@ -1,0 +1,20 @@
+{
+  "candidates": [
+    {
+      "name": "claude-sonnet-5",
+      "kind": "anthropic",
+      "base_url": "https://api.anthropic.com",
+      "key_env": "ANTHROPIC_API_KEY",
+      "model": "claude-sonnet-5",
+      "extra": {}
+    },
+    {
+      "name": "claude-haiku-4.5",
+      "kind": "anthropic",
+      "base_url": "https://api.anthropic.com",
+      "key_env": "ANTHROPIC_API_KEY",
+      "model": "claude-haiku-4-5",
+      "extra": {}
+    }
+  ]
+}

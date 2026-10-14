@@ -1,0 +1,89 @@
+{
+  "_comment": "Racers. 'priority' decides who gets read when several are ready: when the first token arrives from anyone, the race waits up to 'grace_ms' for higher-priority racers; the highest-priority racer that has started by then wins. Local always races, so no Wi-Fi still lands a rebuttal.",
+  "providers": [
+    {
+      "name": "claude",
+      "kind": "anthropic",
+      "base_url": "https://api.anthropic.com",
+      "key_env": "ANTHROPIC_API_KEY",
+      "model": "claude-sonnet-5",
+      "extra": {},
+      "enabled": true,
+      "priority": 2,
+      "_note": "thinking disabled in code; swap model to claude-haiku-4-5 for a faster, cheaper A/B"
+    },
+    {
+      "name": "cerebras-gptoss",
+      "kind": "openai",
+      "base_url": "https://api.cerebras.ai/v1",
+      "key_env": "CEREBRAS_API_KEY",
+      "model": "gpt-oss-120b",
+      "extra": {
+        "reasoning_effort": "low"
+      },
+      "enabled": false,
+      "priority": 0
+    },
+    {
+      "name": "cerebras",
+      "kind": "openai",
+      "base_url": "https://api.cerebras.ai/v1",
+      "key_env": "CEREBRAS_API_KEY",
+      "model": "qwen-3.8-27b",
+      "extra": {
+        "reasoning_effort": "none"
+      },
+      "enabled": true,
+      "priority": 0
+    },
+    {
+      "name": "groq",
+      "kind": "openai",
+      "base_url": "https://api.groq.com/openai/v1",
+      "key_env": "GROQ_API_KEY",
+      "model": "openai/gpt-oss-120b",
+      "extra": {
+        "reasoning_effort": "low"
+      },
+      "enabled": false,
+      "_note": "free tier: 413 on long prompts, 429 under load; gpt-oss ignores rules",
+      "priority": 0
+    },
+    {
+      "name": "gemini",
+      "kind": "openai",
+      "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
+      "key_env": "GEMINI_API_KEY",
+      "model": "gemini-3.8-flash",
+      "extra": {
+        "reasoning_effort": "none"
+      },
+      "enabled": false,
+      "_note": "Disabled after bake-off 2026-09-08: 4.3s, no streaming, 503s, weakest output.",
+      "priority": 0
+    },
+    {
+      "name": "openai",
+      "kind": "openai",
+      "base_url": "https://api.openai.com/v1",
+      "key_env": "OPENAI_API_KEY",
+      "model": "gpt-5.4-nano",
+      "extra": {
+        "reasoning_effort": "minimal"
+      },
+      "enabled": true,
+      "priority": 0
+    },
+    {
+      "name": "local",
+      "kind": "ollama",
+      "base_url": "http://127.0.0.1:11434",
+      "model": "qwen3.6:35b-mlx",
+      "fallback_model": "qwen3.6:35b",
+      "enabled": true,
+      "_note": "Preferred racer: wrote the best passages in every bake-off. Cloud takes over only if local has no first token within head_start_ms.",
+      "priority": 1
+    }
+  ],
+  "grace_ms": 1200
+}
